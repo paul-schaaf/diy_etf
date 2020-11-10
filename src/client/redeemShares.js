@@ -2,21 +2,19 @@ import {
   TransactionInstruction,
   Connection,
   PublicKey,
-  LAMPORTS_PER_SOL,
   Transaction,
   Account,
 } from "@solana/web3.js";
-import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 import { Store } from "./util/store";
-import { newAccountWithLamports } from "./util/new-account-with-lamports";
 import { sendAndConfirmTransaction } from "./util/send-and-confirm-transaction";
 import { url } from "./url";
 
 // u64
 const POOL_REQUEST_TAG = [207, 196, 28, 205, 189, 108, 10, 34];
 
-const createShares = async () => {
+const redeemShares = async () => {
   const store = new Store();
 
   let deployConfig = await store.load("deploy.json");
@@ -34,62 +32,19 @@ const createShares = async () => {
 
   let poolConfig = await store.load("pool.json");
 
-  const masterAccount = new Account(
-    Object.values(poolConfig.masterAccountSecret)
+  const userAccount = new Account(Object.values(poolConfig.userSecret));
+
+  const userPoolTokenAccountPublicKey = new PublicKey(
+    poolConfig.userPoolTokenAccountPublicKey
+  );
+  const userTokenAAccountPublicKey = new PublicKey(
+    poolConfig.userTokenAAccountPublicKey
+  );
+  const userTokenBAccountPublicKey = new PublicKey(
+    poolConfig.userTokenBAccountPublicKey
   );
 
-  let poolTokenMint = new Token(
-    connection,
-    new PublicKey(poolConfig.poolTokenMintAccount),
-    TOKEN_PROGRAM_ID,
-    masterAccount
-  );
-  let tokenAMint = new Token(
-    connection,
-    new PublicKey(poolConfig.tokenAMintAccount),
-    TOKEN_PROGRAM_ID,
-    masterAccount
-  );
-  let tokenBMint = new Token(
-    connection,
-    new PublicKey(poolConfig.tokenBMintAccount),
-    TOKEN_PROGRAM_ID,
-    masterAccount
-  );
-
-  console.log("Creating user account...");
-  const userAccount = await newAccountWithLamports(
-    connection,
-    10 * LAMPORTS_PER_SOL
-  );
-  console.log("Creating user pool share token account...");
-  const userPoolTokenAccountPublicKey = await poolTokenMint.createAccount(
-    userAccount.publicKey
-  );
-  console.log("Creating user token A account...");
-  const userTokenAAccountPublicKey = await tokenAMint.createAccount(
-    userAccount.publicKey
-  );
-  console.log("Minting tokenAs to user...");
-  await tokenAMint.mintTo(
-    userTokenAAccountPublicKey,
-    masterAccount.publicKey,
-    [],
-    1
-  );
-  console.log("Creating user token B account...");
-  const userTokenBAccountPublicKey = await tokenBMint.createAccount(
-    userAccount.publicKey
-  );
-  console.log("Minting tokenBs to user...");
-  await tokenBMint.mintTo(
-    userTokenBAccountPublicKey,
-    masterAccount.publicKey,
-    [],
-    5
-  );
-
-  const REQUEST_INNER_CREATE = [2, 0, 1, 0, 0, 0, 0, 0, 0, 0];
+  const REQUEST_INNER_CREATE = [2, 1, 1, 0, 0, 0, 0, 0, 0, 0];
 
   const createSharesInstruction = new TransactionInstruction({
     keys: [
@@ -99,7 +54,7 @@ const createShares = async () => {
         isWritable: true,
       },
       {
-        pubkey: poolTokenMint.publicKey,
+        pubkey: new PublicKey(poolConfig.poolTokenMintAccount),
         isSigner: false,
         isWritable: true,
       },
@@ -132,7 +87,7 @@ const createShares = async () => {
     data: [...POOL_REQUEST_TAG, ...REQUEST_INNER_CREATE],
   });
 
-  console.log("Creating shares...");
+  console.log("Redeeming shares...");
   await sendAndConfirmTransaction(
     connection,
     new Transaction().add(createSharesInstruction),
@@ -146,9 +101,9 @@ const createShares = async () => {
 
   if (
     userPoolTokenAccountData.value.data.parsed.info.tokenAmount.amount !==
-    "" + 1
+    "" + 0
   ) {
-    throw new Error("User did not get their pool shares");
+    throw new Error("User still has their pool shares");
   }
 
   const userTokenAAccountData = await connection.getParsedAccountInfo(
@@ -158,9 +113,9 @@ const createShares = async () => {
 
   if (
     userTokenAAccountData.value.data.parsed.info.tokenAmount.amount !==
-    "" + 0
+    "" + 1
   ) {
-    throw new Error("User tokenA Account still has tokens");
+    throw new Error("User did not get their ATokens");
   }
 
   const userTokenBAccountData = await connection.getParsedAccountInfo(
@@ -170,9 +125,9 @@ const createShares = async () => {
 
   if (
     userTokenBAccountData.value.data.parsed.info.tokenAmount.amount !==
-    "" + 0
+    "" + 5
   ) {
-    throw new Error("User tokenB Account still has tokens");
+    throw new Error("User did not get their BTokens");
   }
 
   const tokenAVaultData = await connection.getParsedAccountInfo(
@@ -180,8 +135,8 @@ const createShares = async () => {
     "singleGossip"
   );
 
-  if (tokenAVaultData.value.data.parsed.info.tokenAmount.amount !== "" + 1) {
-    throw new Error("Vault A did not get the tokens");
+  if (tokenAVaultData.value.data.parsed.info.tokenAmount.amount !== "" + 0) {
+    throw new Error("Vault A still has tokens");
   }
 
   const tokenBVaultData = await connection.getParsedAccountInfo(
@@ -189,21 +144,14 @@ const createShares = async () => {
     "singleGossip"
   );
 
-  if (tokenBVaultData.value.data.parsed.info.tokenAmount.amount !== "" + 5) {
-    throw new Error("Vault B did not get the tokens");
+  if (tokenBVaultData.value.data.parsed.info.tokenAmount.amount !== "" + 0) {
+    throw new Error("Vault B still has tokens");
   }
 
-  console.log("\x1b[32m%s\x1b[0m", "Share creation complete!");
-  await store.save("pool.json", {
-    ...poolConfig,
-    userSecret: userAccount.secretKey,
-    userPoolTokenAccountPublicKey: userPoolTokenAccountPublicKey.toBase58(),
-    userTokenAAccountPublicKey: userTokenAAccountPublicKey.toBase58(),
-    userTokenBAccountPublicKey: userTokenBAccountPublicKey.toBase58(),
-  });
+  console.log("\x1b[32m%s\x1b[0m", "Share redemption complete!");
 };
 
-createShares()
+redeemShares()
   .catch((err) => {
     console.error(err);
     process.exit(1);

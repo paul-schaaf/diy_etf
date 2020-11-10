@@ -17,6 +17,8 @@
     "deploy": "npm run build:client && node dist/client/deploy.js",
     "init-pool": "npm run build:client && node dist/client/initPool.js",
     "create-shares": "npm run build:client && node dist/client/createShares.js",
+    "redeem-shares": "npm run build:client && node dist/client/redeemShares.js",
+    "whole-shebang": "npm run init-pool && npm run create-shares && npm run redeem-shares",
     "clean": "npm run clean:program && npm run clean:client && rm -rf dist",
     "build:program": "cd src/program && cargo build-bpf && cd $INIT_CWD && rm -rf dist && mkdir dist && mkdir dist/program && mv src/program/solana_escrow.so dist/program/solana_escrow.so",
     "clippy": "cd src/program && cargo clippy",
