@@ -4,9 +4,9 @@ use serum_pool_schema::PoolState;
 use solana_program::program_error::ProgramError;
 use std::convert::TryInto;
 
-enum etfPool {}
+enum EtfPool {}
 
-impl Pool for etfPool {
+impl Pool for EtfPool {
     fn initialize_pool(context: &PoolContext, state: &mut PoolState) -> Result<(), ProgramError> {
         let custom_data = context
             .custom_data
@@ -34,4 +34,4 @@ impl Pool for etfPool {
 }
 
 #[cfg(not(feature = "no-entrypoint"))]
-declare_pool_entrypoint!(etfPool);
+declare_pool_entrypoint!(EtfPool);
