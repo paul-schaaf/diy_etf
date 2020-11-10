@@ -198,6 +198,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "serum-pool",
+ "serum-pool-schema",
  "solana-program",
  "spl-token",
  "thiserror",
@@ -542,8 +543,8 @@ dependencies = [
 
 [[package]]
 name = "serum-pool"
-version = "0.1.0"
-source = "git+https://github.com/paul-schaaf/custom-pool?branch=main#9a67feed7d39950618c814a65eed47983fa2c900"
+version = "0.1.1"
+source = "git+https://github.com/paul-schaaf/custom-pool?branch=main#d246ce36886d11648011aed44eefeb2dd6a1a546"
 dependencies = [
  "anyhow",
  "arrayref",
@@ -562,7 +563,7 @@ dependencies = [
 [[package]]
 name = "serum-pool-schema"
 version = "0.1.0"
-source = "git+https://github.com/paul-schaaf/custom-pool?branch=main#9a67feed7d39950618c814a65eed47983fa2c900"
+source = "git+https://github.com/paul-schaaf/custom-pool?branch=main#d246ce36886d11648011aed44eefeb2dd6a1a546"
 dependencies = [
  "borsh",
  "solana-program",

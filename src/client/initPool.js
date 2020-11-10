@@ -96,11 +96,14 @@ const initPool = async () => {
   const ASSETS_LENGTH = 2;
   const BORSH_ETF = [3, 0, 0, 0, 101, 116, 102];
 
+  const amountTokenA = [1, 0, 0, 0, 0, 0, 0, 0];
+  const amountTokenB = [5, 0, 0, 0, 0, 0, 0, 0];
+
   const INITIALIZE_POOL_REQUEST = [
     VAULT_SIGNER_NONCE,
     ASSETS_LENGTH,
     ...BORSH_ETF,
-    ...[0, 0, 0, 0],
+    ...[16, 0, 0, 0, ...amountTokenA, ...amountTokenB],
   ];
   const REQUEST_INNER_INITIALIZE = [0, ...INITIALIZE_POOL_REQUEST];
 
