@@ -2,12 +2,14 @@ use serum_pool::{declare_pool_entrypoint, Pool, PoolContext};
 use serum_pool_schema::PoolState;
 
 use solana_program::program_error::ProgramError;
+use solana_program::{info, program};
 use std::convert::TryInto;
 
 enum EtfPool {}
 
 impl Pool for EtfPool {
     fn initialize_pool(context: &PoolContext, state: &mut PoolState) -> Result<(), ProgramError> {
+        info!("Processing pool initialization request...");
         let custom_data = context
             .custom_data
             .as_ref()
@@ -20,6 +22,7 @@ impl Pool for EtfPool {
                     .map_err(|_| ProgramError::InvalidArgument)?,
             ));
         }
+        // TODO is this still required?
         let min_value = *amounts.iter().min().unwrap();
         if min_value != amounts[0] {
             return Err(ProgramError::InvalidArgument);
@@ -30,6 +33,108 @@ impl Pool for EtfPool {
 
         state.custom_state = custom_data.clone();
         Ok(())
+    }
+
+    fn process_creation(
+        context: &PoolContext,
+        state: &mut PoolState,
+        requested_shares: u64,
+    ) -> Result<(), ProgramError> {
+        info!("Processing pool share creation request...");
+        let token_amounts_to_pull = Self::get_token_amounts_to_pull(state, requested_shares);
+        let user_accounts = context
+            .user_accounts
+            .as_ref()
+            .ok_or(ProgramError::InvalidArgument)?;
+
+        let pool_vault_accounts = context.pool_vault_accounts;
+
+        let spl_token_program = context
+            .spl_token_program
+            .ok_or(ProgramError::InvalidArgument)?;
+
+        let zipped_iter = token_amounts_to_pull
+            .iter()
+            .zip(user_accounts.asset_accounts.iter())
+            .zip(pool_vault_accounts.iter());
+
+        // pull in components
+        for ((&input_qty, user_asset_account), pool_vault_account) in zipped_iter {
+            let source_pubkey = user_asset_account.key;
+            let destination_pubkey = pool_vault_account.key;
+            let authority_pubkey = user_accounts.authority.key;
+            let signer_pubkeys = &[];
+
+            let instruction = spl_token::instruction::transfer(
+                &spl_token::ID,
+                source_pubkey,
+                destination_pubkey,
+                authority_pubkey,
+                signer_pubkeys,
+                input_qty,
+            )?;
+
+            let account_infos = &[
+                user_asset_account.clone(),
+                pool_vault_account.clone(),
+                user_accounts.authority.clone(),
+                spl_token_program.clone(),
+            ];
+
+            program::invoke(&instruction, account_infos)?;
+        }
+
+        // push out shares
+        {
+            let mint_pubkey = context.pool_token_mint.key;
+            let account_pubkey = user_accounts.pool_token_account.key;
+            let owner_pubkey = context.pool_authority.key;
+            let signer_pubkeys = &[];
+
+            let instruction = spl_token::instruction::mint_to(
+                &spl_token::ID,
+                mint_pubkey,
+                account_pubkey,
+                owner_pubkey,
+                signer_pubkeys,
+                requested_shares,
+            )?;
+
+            let account_infos = &[
+                user_accounts.pool_token_account.clone(),
+                context.pool_token_mint.clone(),
+                context.pool_authority.clone(),
+                spl_token_program.clone(),
+            ];
+
+            program::invoke_signed(
+                &instruction,
+                account_infos,
+                &[&[
+                    context.pool_account.key.as_ref(),
+                    &[state.vault_signer_nonce],
+                ]],
+            )?;
+        };
+        Ok(())
+    }
+}
+
+impl EtfPool {
+    fn get_token_amounts_to_pull(state: &PoolState, requested_shares: u64) -> Vec<u64> {
+        return state
+            .assets
+            .iter()
+            .enumerate()
+            .map(|(index, _)| {
+                u64::from_le_bytes(
+                    state.custom_state[index * 8..(index + 1) * 8]
+                        .try_into()
+                        .unwrap(),
+                )
+            })
+            .map(|base_amount| base_amount * requested_shares)
+            .collect::<Vec<_>>();
     }
 }
 

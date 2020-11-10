@@ -135,6 +135,13 @@ const initPool = async () => {
   console.log("\x1b[32m%s\x1b[0m", "Pool initialized!");
   await store.save("pool.json", {
     poolKey: poolAccount.publicKey.toBase58(),
+    tokenAMintAccount: tokenAMintAccount.publicKey.toBase58(),
+    tokenAVaultAccount: tokenATokenAccount.toBase58(),
+    tokenBMintAccount: tokenBMintAccount.publicKey.toBase58(),
+    tokenBVaultAccount: tokenBTokenAccount.toBase58(),
+    poolTokenMintAccount: poolTokenMintAccount.publicKey.toBase58(),
+    poolAuthority: vaultAuthority[0].toBase58(),
+    masterAccountSecret: masterAccount.secretKey,
   });
 };
 
