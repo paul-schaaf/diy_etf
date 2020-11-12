@@ -1,8 +1,9 @@
 use serum_pool::{declare_pool_entrypoint, Pool, PoolContext};
 use serum_pool_schema::PoolState;
-
 use solana_program::program_error::ProgramError;
-use solana_program::{info, program};
+use solana_program::{info, program, program_pack::Pack};
+use spl_token::state::Mint;
+
 use std::convert::TryInto;
 
 enum EtfPool {}
@@ -22,6 +23,11 @@ impl Pool for EtfPool {
                     .map_err(|_| ProgramError::InvalidArgument)?,
             ));
         }
+
+        if Mint::unpack(&context.pool_token_mint.data.borrow())?.supply != 0 {
+            return Err(ProgramError::InvalidAccountData);
+        }
+
         // TODO is this still required?
         let min_value = *amounts.iter().min().unwrap();
         if min_value != amounts[0] {
