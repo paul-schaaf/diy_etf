@@ -543,8 +543,8 @@ dependencies = [
 
 [[package]]
 name = "serum-pool"
-version = "0.1.1"
-source = "git+https://github.com/paul-schaaf/custom-pool?branch=main#d246ce36886d11648011aed44eefeb2dd6a1a546"
+version = "0.1.2"
+source = "git+https://github.com/paul-schaaf/custom-pool?branch=main#7f4c1f5b880bdcfd5406c1c69f129880f70ca6fc"
 dependencies = [
  "anyhow",
  "arrayref",
@@ -563,7 +563,7 @@ dependencies = [
 [[package]]
 name = "serum-pool-schema"
 version = "0.1.0"
-source = "git+https://github.com/paul-schaaf/custom-pool?branch=main#d246ce36886d11648011aed44eefeb2dd6a1a546"
+source = "git+https://github.com/paul-schaaf/custom-pool?branch=main#7f4c1f5b880bdcfd5406c1c69f129880f70ca6fc"
 dependencies = [
  "borsh",
  "solana-program",

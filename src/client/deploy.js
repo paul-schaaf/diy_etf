@@ -1,14 +1,10 @@
-import {
-  Account,
-  Connection,
-  BpfLoader,
-  BPF_LOADER_PROGRAM_ID,
-} from "@solana/web3.js";
+import { Connection, BpfLoader, BPF_LOADER_PROGRAM_ID } from "@solana/web3.js";
 import fs from "mz/fs";
 
 import { url } from "./url";
 import { Store } from "./util/store";
 import { newAccountWithLamports } from "./util/new-account-with-lamports";
+import { createAccount } from "./util/account";
 
 const pathToProgram = "dist/program/solana_escrow.so";
 
@@ -55,7 +51,10 @@ export const deploy = async () => {
   // Load the program
   console.log("Loading program, this may take a minute...");
   const data = await fs.readFile(pathToProgram);
-  const programAccount = new Account();
+  const programAccount = await createAccount(
+    "cheap grape alley glide already glove ball foot now violin leg bottom"
+  );
+
   await BpfLoader.load(
     connection,
     payerAccount,

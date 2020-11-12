@@ -6,6 +6,8 @@ use spl_token::state::Mint;
 
 use std::convert::TryInto;
 
+solana_program::declare_id!("Gui5kXuxyre7LwyzacJZsM99oHVUXA6AH2kAc8qMKHnb");
+
 enum EtfPool {}
 
 impl Pool for EtfPool {
