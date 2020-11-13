@@ -30,15 +30,6 @@ impl Pool for EtfPool {
             return Err(ProgramError::InvalidAccountData);
         }
 
-        // TODO is this still required?
-        let min_value = *amounts.iter().min().unwrap();
-        if min_value != amounts[0] {
-            return Err(ProgramError::InvalidArgument);
-        }
-        if min_value == 0 {
-            return Err(ProgramError::InvalidArgument);
-        }
-
         state.custom_state = custom_data.clone();
         Ok(())
     }
