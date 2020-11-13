@@ -6,7 +6,11 @@ use spl_token::state::Mint;
 
 use std::convert::TryInto;
 
-solana_program::declare_id!("HixbAcTNeWt8ohHKkCBdZFYWWxVzyjLSshBGiB5kV1S5");
+mod error;
+
+use error::ETFError;
+
+solana_program::declare_id!("2CbhUUUhzWawdSB5DsKJ7r22zjaeB1m1EzpvieSd6pmw");
 
 enum EtfPool {}
 
@@ -16,13 +20,13 @@ impl Pool for EtfPool {
         let custom_data = context
             .custom_data
             .as_ref()
-            .ok_or(ProgramError::InvalidArgument)?;
+            .ok_or(ETFError::InvalidInitializationCustomData)?;
         let mut amounts: Vec<u64> = vec![];
         for (index, _) in context.pool_vault_accounts.iter().enumerate() {
             amounts.push(u64::from_le_bytes(
                 custom_data[index * 8..(index + 1) * 8]
                     .try_into()
-                    .map_err(|_| ProgramError::InvalidArgument)?,
+                    .map_err(|_| ETFError::InvalidInitializationCustomData)?,
             ));
         }
 
