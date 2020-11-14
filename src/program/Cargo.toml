@@ -2,13 +2,13 @@
 # Note: This crate must be built using do.sh
 
 [package]
-name = "diy-etf"
+name = "diy_etf"
 version = "0.0.1"
-description = "Solana escrow"
+description = "diy etf"
 authors = ["Paul"]
-repository = "https://github.com/paul-schaaf/solana-escrow"
+repository = "https://github.com/paul-schaaf/diy_etf"
 license = "MIT"
-homepage = "https://github.com/paul-schaaf/solana-escrow"
+homepage = "https://github.com/paul-schaaf/diy_etf"
 edition = "2018"
 
 [features]
@@ -25,5 +25,5 @@ serum-pool = {version = "0.1.2", git = "https://github.com/paul-schaaf/custom-po
 serum-pool-schema = { git = "https://github.com/paul-schaaf/custom-pool", default-features = false, branch = "main"}
 
 [lib]
-name = "solana_escrow"
+name = "diy_etf"
 crate-type = ["cdylib", "lib"]

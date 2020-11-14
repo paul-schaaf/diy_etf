@@ -58,6 +58,6 @@ impl From<ETFError> for ProgramError {
 
 impl<T> DecodeError<T> for ETFError {
     fn type_of() -> &'static str {
-        "EscrowError"
+        "ETFError"
     }
 }

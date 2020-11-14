@@ -6,7 +6,7 @@ import { Store } from "./util/store";
 import { newAccountWithLamports } from "./util/new-account-with-lamports";
 import { createAccount } from "./util/account";
 
-const pathToProgram = "dist/program/solana_escrow.so";
+const pathToProgram = "dist/program/diy_etf.so";
 
 export const deploy = async () => {
   const store = new Store();
@@ -52,7 +52,7 @@ export const deploy = async () => {
   console.log("Loading program, this may take a minute...");
   const data = await fs.readFile(pathToProgram);
   const programAccount = await createAccount(
-    "receive manage wing expose tennis master captain habit market correct join absorb"
+    "response wink hobby brave remain clinic talent dirt cycle stairs tilt soldier"
   );
 
   await BpfLoader.load(

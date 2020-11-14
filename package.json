@@ -1,10 +1,10 @@
 {
-  "name": "solana-escrow",
+  "name": "diy_etf",
   "version": "0.0.1",
   "description": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/paul-schaaf/solana-escrow"
+    "url": "https://github.com/paul-schaaf/diy_etf"
   },
   "keywords": [],
   "author": "Paul",
@@ -20,17 +20,17 @@
     "redeem-shares": "npm run build:client && node dist/client/redeemShares.js",
     "whole-shebang": "npm run init-pool && npm run create-shares && npm run redeem-shares",
     "clean": "npm run clean:program && npm run clean:client && rm -rf dist",
-    "build:program": "cd src/program && cargo build-bpf && cd $INIT_CWD && rm -rf dist && mkdir dist && mkdir dist/program && mv src/program/solana_escrow.so dist/program/solana_escrow.so",
+    "build:program": "cd src/program && cargo build-bpf && cd $INIT_CWD && rm -rf dist && mkdir dist && mkdir dist/program && mv src/program/diy_etf.so dist/program/diy_etf.so",
     "clippy": "cd src/program && cargo clippy",
     "fmt": "cd src/program && cargo fmt",
     "clean:program": "cd src/program && cargo clean && cd $INIT_CWD && rm -rf dist/program",
     "test:program": "cd src/program && cargo test",
-    "cluster:localnet": "npm run clean:store && rm -f .env",
-    "cluster:devnet": "npm run clean:store && cp cluster-devnet.env .env",
-    "cluster:testnet": "npm run clean:store && cp cluster-testnet.env .env",
-    "cluster:mainnet-beta": "npm run clean:store && cp cluster-mainnet-beta.env .env",
+    "cluster:localnet": "npm run clean:client && rm -f .env",
+    "cluster:devnet": "npm run clean:client && cp cluster-devnet.env .env",
+    "cluster:testnet": "npm run clean:client && cp cluster-testnet.env .env",
+    "cluster:mainnet-beta": "npm run clean:client && cp cluster-mainnet-beta.env .env",
     "localnet:update": "solana-localnet update",
-    "localnet:up": "set -x; solana-localnet down; set -e; solana-localnet up",
+    "localnet:up": "set -x; solana-localnet down; RUST_LOG=solana_runtime::system_instruction_processor=trace,solana_runtime::message_processor=info,solana_bpf_loader=debug,solana_rbpf=debug set -e; solana-localnet up",
     "localnet:down": "solana-localnet down",
     "localnet:logs": "RUST_LOG=solana_runtime::system_instruction_processor=trace,solana_runtime::message_processor=info,solana_bpf_loader=debug,solana_rbpf=debug solana-localnet logs -f"
   },

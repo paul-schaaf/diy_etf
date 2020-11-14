@@ -191,7 +191,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "diy-etf"
+name = "diy_etf"
 version = "0.0.1"
 dependencies = [
  "arrayref",
