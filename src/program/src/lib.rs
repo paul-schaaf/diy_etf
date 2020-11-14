@@ -1,16 +1,15 @@
+use std::convert::TryInto;
+
 use serum_pool::{declare_pool_entrypoint, Pool, PoolContext};
 use serum_pool_schema::PoolState;
 use solana_program::program_error::ProgramError;
 use solana_program::{info, program, program_pack::Pack};
 use spl_token::state::Mint;
 
-use std::convert::TryInto;
-
 mod error;
-
 use error::ETFError;
 
-solana_program::declare_id!("2CbhUUUhzWawdSB5DsKJ7r22zjaeB1m1EzpvieSd6pmw");
+solana_program::declare_id!("8bnFJkaYqaNCLaN1cgaCbuvuXLZNPKzpeGs4M1Nb2LPo");
 
 enum EtfPool {}
 
